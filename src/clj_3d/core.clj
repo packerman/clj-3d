@@ -25,23 +25,30 @@
 (defn make-application [& {:keys [on-exit-hook]}]
   (reify
     GLEventListener
+
     (init [_ drawable]
       (let [gl (get-gl4 drawable)]
         (println "GL version =" (.glGetString gl GL4/GL_VERSION))
         (println "GL renderer =" (.glGetString gl GL4/GL_RENDERER))))
+
     (dispose [_ drawable]
       (System/exit 0))
+
     (display [_ drawable]
       (let [gl (get-gl4 drawable)]
         (.glClearColor gl 0.4 0.4 0.4 1.0)
         (.glClear gl GL4/GL_COLOR_BUFFER_BIT)))
+
     (reshape [_ drawable x y width height]
       (let [gl (get-gl4 drawable)]
         (.glViewport gl x y width height)))
+
     KeyListener
+
     (keyPressed [_ e]
       (condp = (.getKeyCode e)
         KeyEvent/VK_ESCAPE (when on-exit-hook (on-exit-hook))))
+
     (keyReleased [_ e])))
 
 (defn -main
