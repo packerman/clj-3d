@@ -13,9 +13,9 @@
                             (GLCapabilities.))]
     (GLWindow/create screen gl-capabilities)))
 
-(defn configure-gl-window [gl-window]
+(defn configure-gl-window [^GLWindow gl-window]
   (doto gl-window
-    (.setSize 1024 768)
+    (.setSize 800 600)
     (.setTitle "clj-3d")
     (.setVisible true)))
 
