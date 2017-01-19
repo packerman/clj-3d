@@ -6,7 +6,8 @@
   :global-vars {*warn-on-reflection* true}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.jogamp.gluegen/gluegen-rt-main "2.3.2"]
-                 [org.jogamp.jogl/jogl-all-main "2.3.2"]]
+                 [org.jogamp.jogl/jogl-all-main "2.3.2"]
+                 [org.clojure/tools.logging "0.3.1"]]
   :main ^:skip-aot clj-3d.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

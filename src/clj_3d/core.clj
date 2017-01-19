@@ -1,10 +1,13 @@
 (ns clj-3d.core
   (:gen-class)
+  (:require [clj-3d.triangle :as triangle])
   (:import (com.jogamp.newt NewtFactory)
            (com.jogamp.opengl GLProfile GLCapabilities GLEventListener GLAutoDrawable GL4)
            (com.jogamp.newt.opengl GLWindow)
            (com.jogamp.newt.event KeyListener KeyEvent)
            (com.jogamp.opengl.util Animator)))
+
+(def object (atom nil))
 
 (defn make-gl-window []
   (let [screen (-> (NewtFactory/createDisplay nil)
@@ -29,15 +32,19 @@
     (init [_ drawable]
       (let [gl (get-gl4 drawable)]
         (println "GL version =" (.glGetString gl GL4/GL_VERSION))
-        (println "GL renderer =" (.glGetString gl GL4/GL_RENDERER))))
+        (println "GL renderer =" (.glGetString gl GL4/GL_RENDERER))
+        (reset! object (triangle/make-triangle gl))))
 
     (dispose [_ drawable]
+      (let [gl (get-gl4 drawable)]
+        (triangle/dispose-object gl object))
       (System/exit 0))
 
     (display [_ drawable]
       (let [gl (get-gl4 drawable)]
         (.glClearColor gl 0.4 0.4 0.4 1.0)
-        (.glClear gl GL4/GL_COLOR_BUFFER_BIT)))
+        (.glClear gl GL4/GL_COLOR_BUFFER_BIT)
+        (triangle/draw-object gl @object)))
 
     (reshape [_ drawable x y width height]
       (let [gl (get-gl4 drawable)]
