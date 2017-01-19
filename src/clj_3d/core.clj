@@ -1,6 +1,7 @@
 (ns clj-3d.core
   (:gen-class)
-  (:require [clj-3d.triangle :as triangle])
+  (:require [clojure.tools.logging :as log]
+            [clj-3d.triangle :as triangle])
   (:import (com.jogamp.newt NewtFactory)
            (com.jogamp.opengl GLProfile GLCapabilities GLEventListener GLAutoDrawable GL4)
            (com.jogamp.newt.opengl GLWindow)
@@ -31,13 +32,13 @@
 
     (init [_ drawable]
       (let [gl (get-gl4 drawable)]
-        (println "GL version =" (.glGetString gl GL4/GL_VERSION))
-        (println "GL renderer =" (.glGetString gl GL4/GL_RENDERER))
+        (log/info "GL version =" (.glGetString gl GL4/GL_VERSION))
+        (log/info "GL renderer =" (.glGetString gl GL4/GL_RENDERER))
         (reset! object (triangle/make-triangle gl))))
 
     (dispose [_ drawable]
       (let [gl (get-gl4 drawable)]
-        (triangle/dispose-object gl object))
+        (triangle/dispose-object gl @object))
       (System/exit 0))
 
     (display [_ drawable]
