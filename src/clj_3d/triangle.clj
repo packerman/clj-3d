@@ -1,10 +1,6 @@
 (ns clj-3d.triangle
-  (:require [clj-3d.shader :as shader]
-            [clj-3d.render :as render])
-  (:import (com.jogamp.common.nio Buffers)
-           (java.nio FloatBuffer Buffer)
-           (com.jogamp.opengl GL4 GL GL3)
-           (clj_3d.application Application)))
+  (:require [clj-3d.render :as render])
+  (:import (clj_3d.application Application)))
 
 (def vertices [[0 0.5]
                [-0.5 -0.5]

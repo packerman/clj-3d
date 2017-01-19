@@ -1,13 +1,11 @@
 (ns clj-3d.core
   (:gen-class)
-  (:require [clojure.tools.logging :as log]
-            [clj-3d.application :as application]
+  (:require [clj-3d.application :as application]
             [clj-3d.triangle :as triangle])
   (:import (com.jogamp.newt NewtFactory)
-           (com.jogamp.opengl GLProfile GLCapabilities GLEventListener GLAutoDrawable GL4)
            (com.jogamp.newt.opengl GLWindow)
-           (com.jogamp.newt.event KeyListener KeyEvent)
-           (com.jogamp.opengl.util Animator)))
+           (com.jogamp.opengl.util Animator)
+           (com.jogamp.opengl GLProfile GLCapabilities)))
 
 (defn make-gl-window []
   (let [screen (-> (NewtFactory/createDisplay nil)
