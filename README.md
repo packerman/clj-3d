@@ -18,7 +18,8 @@ FIXME: listing of options this app accepts.
 
 ## Examples
 
-...
+* triangle - simple triangle
+* list-of-objects - simple scene as list of objects
 
 ### Bugs
 

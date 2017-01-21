@@ -1,7 +1,7 @@
 TODO
 ====
 
-* Allow a list of objects
+* List of objects
 
 * Use full sequence of NEWT calls from Jogl's Hello Triangle example
 

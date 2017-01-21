@@ -1,12 +1,13 @@
-(ns clj-3d.triangle
-  (:require [clj-3d.render :as render])
+(ns clj-3d.example.triangle
+  (:require [clj-3d.render :as render]
+            [clj-3d.color :as color])
   (:import (clj_3d.application Application)))
 
 (def vertices [[0 0.5]
                [-0.5 -0.5]
                [0.5 -0.5]])
 
-(def color [0 1 0])
+(def color (color/to-rgba-float color/spring-green))
 
 (defn make-triangle [gl]
   (let [object (render/create-object gl vertices color)]
