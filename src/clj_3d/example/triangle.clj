@@ -1,19 +1,17 @@
 (ns clj-3d.example.triangle
-  (:require [clj-3d.render :as render]
-            [clj-3d.color :as color])
-  (:import (clj_3d.application Application)))
+  (:gen-class)
+  (:require [clj-3d.engine.color :as color]
+            [clj-3d.application :as application]
+            [clj-3d.example.common :as common]))
 
-(def vertices [[0 0.5]
-               [-0.5 -0.5]
-               [0.5 -0.5]])
-
-(def color (color/to-rgba-float color/spring-green))
+(def triangle {:vertex-array [[0 0.5]
+                             [-0.5 -0.5]
+                             [0.5 -0.5]]
+              :color (color/to-rgba-float color/spring-green)})
 
 (defn make-triangle [gl]
-  (let [object (render/create-object gl vertices color)]
-    (reify Application
-      (render [_ gl]
-        (render/draw-object gl object))
-      (resize [_ gl x y width height])
-      (dispose [_ gl]
-        (render/dispose-object gl object)))))
+  (common/make-application-for-scene gl [triangle]))
+
+(defn -main
+  [& args]
+  (application/launch make-triangle))

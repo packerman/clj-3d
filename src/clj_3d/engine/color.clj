@@ -1,4 +1,10 @@
-(ns clj-3d.color)
+(ns clj-3d.engine.color)
+
+(def limeg-reen 0x32CD32FF)
+(def lime 0x00FF00FF)
+(def forest-green 0x228B22FF)
+(def green 0x008000FF)
+(def spring-green 0x00FF7FFF)
 
 (def light-sky-blue 0x87CEFAFF)
 (def sky-blue 0x87CEEBFF)
@@ -7,10 +13,11 @@
 (def midnight-blue 0x191970FF)
 (def blue-violet 0x8A2BE2FF)
 
-(def limeg-reen 0x32CD32FF)
-(def forest-green 0x228B22FF)
-(def spring-green 0x00FF7FFF)
+(def red 0xFF0000FF)
 
+(def orange 0xFFA500FF)
+
+(def yellow 0xFFFF00FF)
 
 
 (defn- byte-at [x n]

@@ -1,6 +1,6 @@
 (ns clj-3d.application
   (:require [clojure.tools.logging :as log]
-            [clj-3d.color :as color])
+            [clj-3d.engine.color :as color])
   (:import (com.jogamp.opengl GLEventListener GLAutoDrawable GL4 GLProfile GLCapabilities GL)
            (com.jogamp.newt.event KeyListener KeyEvent)
            (com.jogamp.newt NewtFactory)

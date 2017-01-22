@@ -1,4 +1,4 @@
-(ns clj-3d.shader
+(ns clj-3d.engine.shader
   (:require [clojure.java.io :as io]
             [clojure.tools.logging :as log])
   (:import (com.jogamp.opengl GL2ES2)))
