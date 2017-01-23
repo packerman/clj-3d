@@ -2,8 +2,7 @@
   (:gen-class)
   (:require [clj-3d.engine.color :as color]
             [clj-3d.application :as application]
-            [clj-3d.example.common :as common])
-  (:import (clj_3d.application Application)))
+            [clj-3d.example.common :as common]))
 
 (defn rectangle-vertex-array [x-min y-min x-max y-max]
   [[x-min y-max] [x-min y-min] [x-max y-min]
@@ -37,9 +36,9 @@
             {:vertex-array (polygon-vertex-array [[0.1 -0.4] [0.1 -0.9] [0.9 -0.9] [0.9 -0.4] [0.5 -0.1]])
              :color color/yellow}])
 
-(defn make [gl]
-  (common/make-application-for-scene gl scene))
+(def app
+  (common/make-application-for-scene scene))
 
 (defn -main
   [& args]
-  (application/launch make))
+  (application/launch app))

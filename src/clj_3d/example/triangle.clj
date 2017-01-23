@@ -9,9 +9,9 @@
                              [0.5 -0.5]]
               :color (color/to-rgba-float color/spring-green)})
 
-(defn make-triangle [gl]
-  (common/make-application-for-scene gl [triangle]))
+(def app
+  (common/make-application-for-scene [triangle]))
 
 (defn -main
   [& args]
-  (application/launch make-triangle))
+  (application/launch app))

@@ -6,4 +6,4 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (application/launch triangle/make-triangle))
+  (application/launch triangle/app))
