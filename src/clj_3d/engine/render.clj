@@ -6,6 +6,9 @@
            (java.nio Buffer)
            (com.jogamp.common.nio Buffers)))
 
+(def primitive->mode {:triangles GL/GL_TRIANGLES
+                      :lines     GL/GL_LINES})
+
 (defn- create-nio-buffer [vertices]
   (let [num-elements (* (count vertices) (count (first vertices)))
         buffer (Buffers/newDirectFloatBuffer num-elements)]
@@ -24,8 +27,19 @@
     (.glGenVertexArrays gl n arrays 0)
     arrays))
 
+(defn- prepare-node [node]
+  (letfn [(add-mesh-if-needed [n]
+            (if-not (contains? n :mesh)
+              (-> (assoc n :mesh {:primitive    :triangles
+                                     :vertex-array (n :vertex-array)})
+                  (dissoc :vertex-array))
+              n))]
+    (-> node
+        add-mesh-if-needed)))
+
 (defn- create-object [^GL4 gl node]
-  (let [{:keys [vertex-array color]} node
+  (let [{:keys [color]} node
+        {:keys [vertex-array]} (:mesh node)
         ^Buffer data (create-nio-buffer vertex-array)
         size (* Float/BYTES (.capacity data))
         component-count (count (first vertex-array))
@@ -43,6 +57,8 @@
      :vbos         vbos
      :count        count
      :color        color
+     :mode (primitive->mode
+             (get-in node [:mesh :primitive] :triangles))
      :model-matrix (transform/multiply
                      (:transforms node))
      :program      (shader/build-program gl "flat")}))
@@ -53,7 +69,7 @@
     (color/to-rgba-float color)))
 
 (defn- draw-object [^GL4 gl object]
-  (let [{:keys [program ^ints vaos count color]} object
+  (let [{:keys [program ^ints vaos count color mode]} object
         [r g b] (convert-to-rgba color)
         color-location (.glGetUniformLocation gl program "color")
         mvp-location (.glGetUniformLocation gl program "mvp")]
@@ -61,7 +77,7 @@
     (.glUniform4f gl color-location r g b 1)
     (.glUniformMatrix4fv gl mvp-location 1 false (:model-matrix object) 0)
     (.glBindVertexArray gl (aget vaos 0))
-    (.glDrawArrays gl GL/GL_TRIANGLES 0 count)
+    (.glDrawArrays gl mode 0 count)
     (.glBindVertexArray gl 0)))
 
 (defn- dispose-object! [^GL4 gl object]
@@ -72,7 +88,8 @@
 (defn create-render-object [gl scene]
   (doall
     (for [node scene]
-      (create-object gl node))))
+      (create-object gl
+                     (prepare-node node)))))
 
 (defn render [gl render-object]
   (doseq [object render-object]

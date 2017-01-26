@@ -3,6 +3,8 @@ TODO
 
 * List of objects
 
+* Introduce mesh and different types of primitives
+
 * Use uniform buffer objects
 * Buffer objects with mapping
 
