@@ -1,6 +1,7 @@
 (ns clj-3d.engine.render
   (:require [clj-3d.engine.shader :as shader]
-            [clj-3d.engine.color :as color])
+            [clj-3d.engine.color :as color]
+            [clj-3d.engine.transform :as transform])
   (:import (com.jogamp.opengl GL4 GL GL3)
            (java.nio Buffer)
            (com.jogamp.common.nio Buffers)))
@@ -38,11 +39,13 @@
 
     (.glEnableVertexAttribArray gl 0)
     (.glVertexAttribPointer gl 0 component-count GL/GL_FLOAT false 0 0)
-    {:vaos vaos
-     :vbos vbos
-     :count count
-     :color color
-     :program (shader/build-program gl "flat")}))
+    {:vaos         vaos
+     :vbos         vbos
+     :count        count
+     :color        color
+     :model-matrix (transform/multiply
+                     (:transforms node))
+     :program      (shader/build-program gl "flat")}))
 
 (defn- convert-to-rgba [color]
   (if (vector? color)
@@ -52,9 +55,11 @@
 (defn- draw-object [^GL4 gl object]
   (let [{:keys [program ^ints vaos count color]} object
         [r g b] (convert-to-rgba color)
-        color-location (.glGetUniformLocation gl program "color")]
+        color-location (.glGetUniformLocation gl program "color")
+        mvp-location (.glGetUniformLocation gl program "mvp")]
     (.glUseProgram gl program)
     (.glUniform4f gl color-location r g b 1)
+    (.glUniformMatrix4fv gl mvp-location 1 false (:model-matrix object) 0)
     (.glBindVertexArray gl (aget vaos 0))
     (.glDrawArrays gl GL/GL_TRIANGLES 0 count)
     (.glBindVertexArray gl 0)))
