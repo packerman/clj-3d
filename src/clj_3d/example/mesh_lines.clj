@@ -1,4 +1,5 @@
 (ns clj-3d.example.mesh-lines
+  (:gen-class)
   (:require [clj-3d.application :as application]
             [clj-3d.example.common :as common]
             [clj-3d.engine.color :as color]
@@ -18,13 +19,13 @@
                   (into (map #(list [x-min %] [x-max %]) (steps n y-min y-max))))))))
 
 (def scene [{:mesh       {:primitive    :lines
-                          :vertex-array (grid-vertex-array 20 10)}
+                          :vertex-array (grid-vertex-array 8 5)}
              :color      color/white
-             :transforms [(scale 1.8 1.8 1)]}])
+             :transforms [(scale 1.6 1.6 1)]}])
 
 (def app
-  (common/make-application-for-scene scene {:clear-color color/dim-gray}))
+  (common/make-application-for-scene scene))
 
 (defn -main
   [& args]
-  (application/launch app {:fullscreen true}))
+  (application/launch app))

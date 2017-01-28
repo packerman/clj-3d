@@ -40,6 +40,21 @@
      :y (scale 1 s 1)
      :z (scale 1 1 s))))
 
+(defn perspective-camera [params look-at]
+  (let [projection-matrix (float-array 16)
+        view-matrix (float-array 16)
+        camera {:params            params
+                :look-at           look-at
+                :projection-matrix projection-matrix
+                :view-matrix       view-matrix}
+        tmp-matrix (float-array 16)]
+    (FloatUtil/makeLookAt view-matrix 0
+                          (float-array (:eye look-at)) 0
+                          (float-array (:center look-at)) 0
+                          (float-array (:up look-at)) 0
+                          tmp-matrix)
+    camera))
+
 (defn multiply [transforms]
   (let [^floats m (make-identity)]
     (doseq [^floats t transforms]

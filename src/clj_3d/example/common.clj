@@ -15,7 +15,7 @@
 (defn make-application-for-scene
   ([scene options]
    (let [object (atom nil)
-         {:keys [clear-color] :or {clear-color color/deep-sky-blue}} options]
+         {:keys [clear-color] :or {clear-color color/dim-gray}} options]
      (reify
        GLEventListener
 
