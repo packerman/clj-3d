@@ -40,14 +40,29 @@
      :y (scale 1 s 1)
      :z (scale 1 1 s))))
 
+(defn multiply
+  ([] (make-identity))
+  ([m] m)
+  ([^floats m ^floats n] (let [^floats p (float-array 16)]
+                           (FloatUtil/multMatrix m n p)))
+  ([m n & more] (let [^floats result (multiply m n)]
+                  (doseq [^floats t more]
+                    (FloatUtil/multMatrix result t))
+                  result)))
+
+(defn multiply* [ms]
+  (apply multiply ms))
+
 (defn perspective-camera [params look-at]
   (let [projection-matrix (float-array 16)
         view-matrix (float-array 16)
-        camera {:params            params
+        camera {:type :perspective
+                :params            params
                 :look-at           look-at
                 :projection-matrix projection-matrix
                 :view-matrix       view-matrix}
         tmp-matrix (float-array 16)]
+    (FloatUtil/makeIdentity projection-matrix)
     (FloatUtil/makeLookAt view-matrix 0
                           (float-array (:eye look-at)) 0
                           (float-array (:center look-at)) 0
@@ -55,8 +70,20 @@
                           tmp-matrix)
     camera))
 
-(defn multiply [transforms]
-  (let [^floats m (make-identity)]
-    (doseq [^floats t transforms]
-      (FloatUtil/multMatrix m t))
-    m))
+(defn update-projection-matrix [camera aspect-ratio]
+  (condp = (:type camera)
+    :identity camera
+    :perspective (let [projection-matrix (float-array 16)
+                       {:keys [fovy near far]} (:params camera)]
+                   (FloatUtil/makePerspective projection-matrix 0 true fovy aspect-ratio near far)
+                   (assoc camera :projection-matrix projection-matrix))))
+
+(defn get-projection-view-matrix [{:keys [projection-matrix view-matrix]}]
+  (multiply projection-matrix view-matrix))
+
+(defn identity-camera []
+  (let [projection-matrix (make-identity)
+        view-matrix (make-identity)]
+    {:type :identity
+     :projection-matrix projection-matrix
+     :view-matrix view-matrix}))

@@ -1,7 +1,8 @@
 (ns clj-3d.example.common
   (:require [clj-3d.engine.render :as render]
             [clojure.tools.logging :as log]
-            [clj-3d.engine.color :as color])
+            [clj-3d.engine.color :as color]
+            [clj-3d.engine.transform :as transform])
   (:import (com.jogamp.opengl GLEventListener GL4 GL GLAutoDrawable)
            (com.jogamp.newt.event KeyListener)))
 
@@ -13,9 +14,10 @@
     (.glClearColor gl r g b a)))
 
 (defn make-application-for-scene
-  ([scene options]
+  ([scene camera options]
    (let [object (atom nil)
-         {:keys [clear-color] :or {clear-color color/dim-gray}} options]
+         {:keys [clear-color] :or {clear-color color/dim-gray}} options
+         camera (atom camera)]
      (reify
        GLEventListener
 
@@ -36,12 +38,14 @@
          (let [gl (get-gl4 drawable)]
            (set-clear-color! gl clear-color)
            (.glClear gl GL4/GL_COLOR_BUFFER_BIT)
-           (render/render gl @object)))
+           (render/render gl @object @camera)))
 
        (reshape [_ drawable x y width height]
          (log/info "reshape" x y width height)
-         (let [gl (get-gl4 drawable)]
-           (.glViewport gl x y width height)))
+         (let [gl (get-gl4 drawable)
+               aspect-ratio (float (/ width height))]
+           (.glViewport gl x y width height)
+           (swap! camera transform/update-projection-matrix aspect-ratio)))
 
        KeyListener
 
@@ -50,4 +54,5 @@
              KeyEvent/VK_ESCAPE (when on-exit-hook (on-exit-hook))))
 
        (keyReleased [_ e]))))
-  ([scene] (make-application-for-scene scene {})))
+  ([scene camera] (make-application-for-scene scene camera {}))
+  ([scene] (make-application-for-scene scene (transform/identity-camera) {})))
