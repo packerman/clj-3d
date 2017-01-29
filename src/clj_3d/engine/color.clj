@@ -19,6 +19,12 @@
 
 (def yellow 0xFFFF00FF)
 
+(def white 0xFFFFFFFF)
+
+(def black 0x000000FF)
+
+(def gray 0x808080FF)
+(def dim-gray 0x696969FF)
 
 (defn- byte-at [x n]
   (-> (bit-shift-right x n) (bit-and 0xff)))

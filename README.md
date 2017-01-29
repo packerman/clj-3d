@@ -19,7 +19,10 @@ FIXME: listing of options this app accepts.
 ## Examples
 
 * triangle - simple triangle
-* list-of-objects - simple scene as list of objects
+* simple-scene - simple scene as list of objects
+* transforms
+* mesh-lines
+* camera
 
 ### Bugs
 
