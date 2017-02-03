@@ -56,3 +56,16 @@
        (keyReleased [_ e]))))
   ([scene camera] (make-application-for-scene scene camera {}))
   ([scene] (make-application-for-scene scene (transform/identity-camera) {})))
+
+(defn grid-vertex-array [m n]
+  (letfn [(steps [k a b]
+            {:pre [(> k 1)]}
+            (let [step (/ (- b a) (dec k))]
+              (->>
+                (iterate #(+ % step) a)
+                (take k))))]
+    (let [[x-min y-min x-max y-max] [-0.5 -0.5 0.5 0.5]]
+      (mapcat identity
+              (-> []
+                  (into (map #(list [% y-min] [% y-max]) (steps m x-min x-max)))
+                  (into (map #(list [x-min %] [x-max %]) (steps n y-min y-max))))))))
