@@ -26,6 +26,11 @@
          (let [gl (get-gl4 drawable)]
            (log/info "GL version =" (.glGetString gl GL4/GL_VERSION))
            (log/info "GL renderer =" (.glGetString gl GL4/GL_RENDERER))
+           (.glEnable gl GL/GL_DEPTH_TEST)
+           (.glDepthFunc gl GL/GL_LESS)
+           (.glEnable gl GL/GL_CULL_FACE)
+           (.glCullFace gl GL/GL_BACK)
+           (.glFrontFace gl GL/GL_CCW)
            (reset! object (render/create-render-object gl scene))))
 
        (dispose [_ drawable]
@@ -37,7 +42,8 @@
        (display [_ drawable]
          (let [gl (get-gl4 drawable)]
            (set-clear-color! gl clear-color)
-           (.glClear gl GL4/GL_COLOR_BUFFER_BIT)
+           (.glClear gl (bit-or GL4/GL_COLOR_BUFFER_BIT
+                                GL4/GL_DEPTH_BUFFER_BIT))
            (render/render gl @object @camera)))
 
        (reshape [_ drawable x y width height]

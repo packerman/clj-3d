@@ -50,6 +50,14 @@
                     (FloatUtil/multMatrix result t))
                   result)))
 
+(defn inverse [m]
+  (let [result (float-array 16)]
+    (FloatUtil/invertMatrix m result)))
+
+(defn transpose [m]
+  (let [result (float-array 16)]
+    (FloatUtil/transposeMatrix m result)))
+
 (defn multiply* [ms]
   (apply multiply ms))
 
