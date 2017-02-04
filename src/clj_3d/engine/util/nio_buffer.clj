@@ -57,7 +57,6 @@
     (map->NioBuffer {:buffer buffer
                      :count num-elements
                      :byte-size (* Integer/BYTES (.capacity buffer))
-                     :dimension 0
                      :type GL/GL_UNSIGNED_SHORT})))
 
 (defn byte-buffer [data]
@@ -71,5 +70,4 @@
     (map->NioBuffer {:buffer buffer
                      :count num-elements
                      :byte-size (* Integer/BYTES (.capacity buffer))
-                     :dimension 0
                      :type GL/GL_UNSIGNED_BYTE})))
