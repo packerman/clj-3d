@@ -14,6 +14,14 @@
                                        "normal"   1
                                        }
                           :uniforms   #{"model_view_projection_matrix" "normal_matrix"}}
+                         {:name       "diffuse"
+                          :attributes {
+                                       "position" 0
+                                       "normal"   1
+                                       }
+                          :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
+                                        "material_ambient" "material_diffuse"
+                                        "light_color" "light_position"}}
                          })
 
 (defn build-programs [^GL2ES2 gl]

@@ -51,9 +51,17 @@
           (add-material-if-needed [n]
             (if-not (contains? n :material)
               (-> n
-                  (assoc :material {:color (convert-to-rgba (:color n))})
+                  (assoc :material {:colors {:ambient (convert-to-rgba (:color n))}})
                   (dissoc :color))
               n))
+          (convert-colors-if-needed [n]
+            (if-not (and (:material n) (associative? (:material n)))
+              n
+              (-> n
+                  (update-in [:material :colors :ambient] (fn [color]
+                                                            (when color (convert-to-rgba color))))
+                  (update-in [:material :colors :diffuse] (fn [color]
+                                                            (when color (convert-to-rgba color)))))))
           (convert-to-rgba [color]
             (if (vector? color)
               color
@@ -63,19 +71,24 @@
         create-vertex-array-map-if-needed
         create-vertex-nio-buffer-if-needed
         create-index-nio-buffer-if-needed
-        add-material-if-needed)))
+        add-material-if-needed
+        convert-colors-if-needed)))
 
 (defn- program-name-for-material [material]
   (cond
     (= material :normal) "normal"
+    (get-in material [:colors :diffuse]) "diffuse"
     :else "flat"))
 
 (defn- set-uniforms-for-material [^GL4 gl program material]
   (condp = (:name program)
-    "normal" nil
-    "flat" (let [[r g b] (:color material)]
-             (.glUniform4f gl (get-in program [:locations :uniforms "color"]) r g b 1)
-             )))
+    "normal" (do)
+    "flat" (let [[r g b] (get-in material [:colors :ambient])]
+             (.glUniform4f gl (get-in program [:locations :uniforms "color"]) r g b 1))
+    "diffuse" (let [[ra ga ba] (get-in material [:colors :ambient])
+                    [rd gd bd] (get-in material [:colors :diffuse])]
+                (.glUniform4f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba 1)
+                (.glUniform4f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd 1))))
 
 (defn attribute-offsets [vertex-arrys]
   (reduce (fn [result vertex-array]
@@ -133,18 +146,35 @@
                 :count     (:count index-array)
                 :elem-type (:type index-array)})))))
 
-(defn- draw-object [^GL4 gl object matrices]
+(defn when-uniform-exists [program name action]
+  (when-let [location (program/uniform-location program name)]
+    (action location)))
+
+(defn- draw-object [^GL4 gl object matrices lights]
   (let [{:keys [program ^ints vaos ^ints ibos elem-type count material mode]} object
         model-view-projection-matrix (transform/multiply (:projection-view-matrix matrices)
-                                                         (:model-matrix object))]
+                                                         (:model-matrix object))
+        model-view-matrix (transform/multiply (:view-matrix matrices)
+                                              (:model-matrix object))]
     (program/use-program gl program)
     (set-uniforms-for-material gl program material)
-    (when-let [normal-matrix-location (program/uniform-location program "normal_matrix")]
-      (.glUniformMatrix4fv gl normal-matrix-location 1 false
-                           (-> (transform/multiply (:view-matrix matrices)
-                                                   (:model-matrix object))
-                               transform/inverse
-                               transform/transpose) 0))
+
+    (when-let [[light & _] lights]
+      (let [[x y z] (:position light)
+            [r g b a] (:color light)]
+        (when-uniform-exists program "light_position" (fn [location]
+                                                        (.glUniform3f gl location x y z)))
+        (when-uniform-exists program "light_color" (fn [location]
+                                                     (.glUniform4f gl location r g b a)))))
+
+    (when-uniform-exists program "model_view_matrix" (fn [location]
+                                                       (.glUniformMatrix4fv gl location 1 false
+                                                                            model-view-matrix 0)))
+    (when-uniform-exists program "normal_matrix" (fn [location]
+                                                   (.glUniformMatrix4fv gl location 1 false
+                                                                        (-> model-view-matrix
+                                                                            transform/inverse
+                                                                            transform/transpose) 0)))
     (.glUniformMatrix4fv gl (program/uniform-location program "model_view_projection_matrix")
                          1 false model-view-projection-matrix 0)
     (.glBindVertexArray gl (aget vaos 0))
@@ -163,17 +193,18 @@
 
 (defn create-render-object [gl scene]
   (let [programs (program/build-programs gl)]
-    (doall
-      (for [node scene]
-        (create-object gl programs
-                       (prepare-node node))))))
+    {:lights (scene :lights)
+     :objects (doall
+                (for [node (:nodes scene)]
+                  (create-object gl programs
+                                 (prepare-node node))))}))
 
 (defn render [gl render-object camera]
   (let [matrices {:projection-view-matrix (transform/get-projection-view-matrix camera)
                   :view-matrix            (:view-matrix camera)}]
-    (doseq [object render-object]
-      (draw-object gl object matrices))))
+    (doseq [object (:objects render-object)]
+      (draw-object gl object matrices (:lights render-object)))))
 
 (defn dispose! [gl render-object]
-  (doseq [object render-object]
+  (doseq [object (:objects render-object)]
     (dispose-object! gl object)))

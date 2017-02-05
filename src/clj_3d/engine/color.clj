@@ -4,6 +4,7 @@
 (def lime 0x00FF00FF)
 (def forest-green 0x228B22FF)
 (def green 0x008000FF)
+(def dark-green 0x006400FF)
 (def spring-green 0x00FF7FFF)
 
 (def light-sky-blue 0x87CEFAFF)
