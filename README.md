@@ -25,6 +25,7 @@ FIXME: listing of options this app accepts.
 * camera
 * cube from grids
 * cube normal material
+* cube diffuse
 
 ### Bugs
 

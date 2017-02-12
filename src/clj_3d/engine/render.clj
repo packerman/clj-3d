@@ -21,16 +21,6 @@
     (get-in material [:colors :diffuse]) "diffuse"
     :else "flat"))
 
-(defn- set-uniforms-for-material [^GL4 gl program material]
-  (condp = (:name program)
-    "normal" (do)
-    "flat" (let [[r g b] (get-in material [:colors :ambient])]
-             (.glUniform4f gl (get-in program [:locations :uniforms "color"]) r g b 1))
-    "diffuse" (let [[ra ga ba] (get-in material [:colors :ambient])
-                    [rd gd bd] (get-in material [:colors :diffuse])]
-                (.glUniform4f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba 1)
-                (.glUniform4f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd 1))))
-
 (defn- create-object [^GL4 gl programs geometries node]
   (let [{:keys [material]} node
         geometry (or (get geometries (:geometry node))
@@ -58,7 +48,7 @@
         model-view-matrix (transform/multiply (:view-matrix matrices)
                                               (:model-matrix object))]
     (program/use-program gl program)
-    (set-uniforms-for-material gl program material)
+    (program/apply-material gl program material)
 
     (when-let [[light & _] lights]
       (let [[x y z] (:position light)

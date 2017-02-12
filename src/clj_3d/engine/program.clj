@@ -45,3 +45,17 @@
 
 (defn use-program [^GL2ES2 gl {:keys [program-id]}]
   (.glUseProgram gl program-id))
+
+(defmulti apply-material (fn [gl program material] (:name program)))
+
+(defmethod apply-material "normal" [_ _ _])
+
+(defmethod apply-material "flat" [^GL2ES2 gl program material]
+  (let [[r g b] (get-in material [:colors :ambient])]
+    (.glUniform4f gl (get-in program [:locations :uniforms "color"]) r g b 1)))
+
+(defmethod apply-material "diffuse" [^GL2ES2 gl program material]
+  (let [[ra ga ba] (get-in material [:colors :ambient])
+        [rd gd bd] (get-in material [:colors :diffuse])]
+    (.glUniform4f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba 1)
+    (.glUniform4f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd 1)))
