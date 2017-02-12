@@ -27,14 +27,20 @@
         (list first-point p1 p2))
       (mapcat identity))))
 
-(def scene [{:vertex-array [[-0.7 0.9] [-0.9 0.1] [-0.1 0.1]]
-             :color        color/orange}
-            {:vertex-array (rectangle-vertex-array 0.1 0.1 0.9 0.9)
-             :color        color/lime}
-            {:vertex-array (circle-vertex-array [-0.5 -0.5] 0.4)
-             :color color/red}
-            {:vertex-array (polygon-vertex-array [[0.1 -0.4] [0.1 -0.9] [0.9 -0.9] [0.9 -0.4] [0.5 -0.1]])
-             :color color/yellow}])
+(def scene {:geometries {
+                         "triangle"  (common/simple-geometry [[-0.7 0.9] [-0.9 0.1] [-0.1 0.1]])
+                         "rectangle" (common/simple-geometry (rectangle-vertex-array 0.1 0.1 0.9 0.9))
+                         "circle"    (common/simple-geometry (circle-vertex-array [-0.5 -0.5] 0.4))
+                         "polygon"   (common/simple-geometry
+                                       (polygon-vertex-array [[0.1 -0.4] [0.1 -0.9] [0.9 -0.9] [0.9 -0.4] [0.5 -0.1]]))}
+            :nodes      [{:geometry "triangle"
+                          :color    color/orange}
+                         {:geometry "rectangle"
+                          :color    color/lime}
+                         {:geometry "circle"
+                          :color    color/red}
+                         {:geometry "polygon"
+                          :color    color/yellow}]})
 
 (def app
   (common/make-application-for-scene scene))

@@ -1,6 +1,11 @@
 TODO
 ====
 
+* Check diffuse example
+* Check if previous example are not broken
+* Example - generated 'city of rectangles'
+* Consider colors in materials as strings
+
 * List of objects
 
 * Introduce mesh and different types of primitives

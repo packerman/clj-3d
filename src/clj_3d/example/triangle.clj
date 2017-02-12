@@ -4,13 +4,17 @@
             [clj-3d.application :as application]
             [clj-3d.example.common :as common]))
 
-(def triangle {:vertex-array [[0 0.5]
-                             [-0.5 -0.5]
-                             [0.5 -0.5]]
-              :color (color/to-rgba-float color/spring-green)})
+(def scene {
+            :geometries {
+                         "triangle" (common/simple-geometry [[0 0.5]
+                                                             [-0.5 -0.5]
+                                                             [0.5 -0.5]])}
+            :nodes      [{:geometry "triangle"
+                          :color    (color/to-rgba-float color/spring-green)}]
+            })
 
 (def app
-  (common/make-application-for-scene [triangle]))
+  (common/make-application-for-scene scene))
 
 (defn -main
   [& args]

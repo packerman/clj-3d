@@ -8,37 +8,35 @@
 
 (def grid (common/grid-vertex-array 6 6))
 
-(def scene [
-            ;back
-            {:mesh       {:primitive    :lines
-                          :vertex-array grid}
-             :color      color/lime
-             :transforms []}
-            ;left
-            {:mesh       {:primitive    :lines
-                          :vertex-array grid}
-             :color      color/lime
-             :transforms [(translation -0.5 0 0.5)
-                          (axis-rotation (Math/toRadians 90) :y)]}
-            ;right
-            {:mesh       {:primitive    :lines
-                          :vertex-array grid}
-             :color      color/lime
-             :transforms [(translation 0.5 0 0.5)
-                          (axis-rotation (Math/toRadians 90) :y)]}
-            ;top
-            {:mesh       {:primitive    :lines
-                          :vertex-array grid}
-             :color      color/lime
-             :transforms [(translation 0.0 0.5 0.5)
-                          (axis-rotation (Math/toRadians 90) :x)]}
-            ;down
-            {:mesh       {:primitive    :lines
-                          :vertex-array grid}
-             :color      color/lime
-             :transforms [(translation 0.0 -0.5 0.5)
-                          (axis-rotation (Math/toRadians 90) :x)]}
-            ])
+(def scene {
+            :geometries {
+                   "grid" (common/simple-geometry :lines grid)
+                         }
+            :nodes [
+                    ;back
+                    {:geometry  "grid"
+                     :color      color/lime
+                     :transforms []}
+                    ;left
+                    {:geometry       "grid"
+                     :color      color/lime
+                     :transforms [(translation -0.5 0 0.5)
+                                  (axis-rotation (Math/toRadians 90) :y)]}
+                    ;right
+                    {:geometry       "grid"
+                     :color      color/lime
+                     :transforms [(translation 0.5 0 0.5)
+                                  (axis-rotation (Math/toRadians 90) :y)]}
+                    ;top
+                    {:geometry      "grid"
+                     :color      color/lime
+                     :transforms [(translation 0.0 0.5 0.5)
+                                  (axis-rotation (Math/toRadians 90) :x)]}
+                    ;down
+                    {:geometry       "grid"
+                     :color      color/lime
+                     :transforms [(translation 0.0 -0.5 0.5)
+                                  (axis-rotation (Math/toRadians 90) :x)]}]})
 
 (def camera (transform/perspective-camera {:fovy (Math/toRadians 45.0)
                                            :near 0.1

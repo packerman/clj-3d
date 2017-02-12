@@ -23,6 +23,9 @@ FIXME: listing of options this app accepts.
 * transforms
 * mesh-lines
 * camera
+* cube from grids
+* cube normal material
+* cube diffuse
 
 ### Bugs
 
