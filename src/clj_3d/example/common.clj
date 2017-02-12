@@ -3,11 +3,30 @@
             [clojure.tools.logging :as log]
             [clj-3d.engine.color :as color]
             [clj-3d.engine.transform :as transform])
-  (:import (com.jogamp.opengl GLEventListener GL4 GL GLAutoDrawable)
+  (:import (com.jogamp.opengl GLEventListener GL4 GL GLAutoDrawable GLPipelineFactory)
            (com.jogamp.newt.event KeyListener)))
 
 (defn get-gl4 ^GL4 [^GLAutoDrawable drawable]
   (-> drawable .getGL .getGL4))
+
+(defn init-gl4
+  (^GL4 [^GLAutoDrawable drawable {:keys [debug? trace?] :or {debug? false trace? false}}]
+   (letfn [(set-debug-context ^GL [^GL gl]
+             (if debug?
+               (-> gl .getContext
+                   (.setGL (GLPipelineFactory/create "com.jogamp.opengl.Debug" nil gl nil)))
+               gl))
+           (set-trace-context ^GL [^GL gl]
+             (if trace?
+               (-> gl .getContext
+                   (.setGL (GLPipelineFactory/create "com.jogamp.opengl.Trace" nil gl (object-array [System/err]))))
+               gl))]
+     (let [^GL gl (-> drawable
+                      .getGL
+                      set-debug-context
+                      set-trace-context)]
+       (.getGL4 gl))))
+  (^GL4 [^GLAutoDrawable drawable] (init-gl4 drawable {})))
 
 (defn set-clear-color! [^GL gl color]
   (let [[r g b a] (color/to-rgba-float color)]
@@ -23,7 +42,7 @@
 
        (init [_ drawable]
          (log/info "init")
-         (let [gl (get-gl4 drawable)]
+         (let [gl (init-gl4 drawable {:debug? true :trace? true})]
            (log/info "GL version =" (.glGetString gl GL4/GL_VERSION))
            (log/info "GL renderer =" (.glGetString gl GL4/GL_RENDERER))
            (.glEnable gl GL/GL_DEPTH_TEST)
