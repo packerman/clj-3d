@@ -28,14 +28,11 @@
       (mapcat identity))))
 
 (def scene {:geometries {
-                         "triangle"  {:vertex-arrays {
-                                                      "position" [[-0.7 0.9] [-0.9 0.1] [-0.1 0.1]]}}
-                         "rectangle" {:vertex-arrays {
-                                                      "position" (rectangle-vertex-array 0.1 0.1 0.9 0.9)}}
-                         "circle"    {:vertex-arrays {
-                                                      "position" (circle-vertex-array [-0.5 -0.5] 0.4)}}
-                         "polygon"   {:vertex-arrays {
-                                                      "position" (polygon-vertex-array [[0.1 -0.4] [0.1 -0.9] [0.9 -0.9] [0.9 -0.4] [0.5 -0.1]])}}}
+                         "triangle"  (common/simple-geometry [[-0.7 0.9] [-0.9 0.1] [-0.1 0.1]])
+                         "rectangle" (common/simple-geometry (rectangle-vertex-array 0.1 0.1 0.9 0.9))
+                         "circle"    (common/simple-geometry (circle-vertex-array [-0.5 -0.5] 0.4))
+                         "polygon"   (common/simple-geometry
+                                       (polygon-vertex-array [[0.1 -0.4] [0.1 -0.9] [0.9 -0.9] [0.9 -0.4] [0.5 -0.1]]))}
             :nodes      [{:geometry "triangle"
                           :color    color/orange}
                          {:geometry "rectangle"

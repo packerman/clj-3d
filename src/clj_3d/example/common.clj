@@ -94,3 +94,10 @@
               (-> []
                   (into (map #(list [% y-min] [% y-max]) (steps m x-min x-max)))
                   (into (map #(list [x-min %] [x-max %]) (steps n y-min y-max))))))))
+
+(defn simple-geometry
+  ([primitive vertex-array] {
+                             :primitive     primitive
+                             :vertex-arrays {
+                                             "position" vertex-array}})
+  ([vertex-array] (simple-geometry :triangles vertex-array)))

@@ -5,12 +5,13 @@
             [clj-3d.engine.color :as color]
             [clj-3d.engine.transform :as transform :refer [translation axis-rotation scale]]))
 
-(def scene [{:mesh       {:primitive    :lines
-                          :vertex-array (mesh-lines/grid-vertex-array 24 12)}
-             :color      color/white
-             :transforms [(translation 0 -1 -3)
-                          (axis-rotation (Math/toRadians 90.0) :x)
-                          (scale 4 4 1)]}])
+(def scene {:geometries {
+                         "grid" (common/simple-geometry :lines (common/grid-vertex-array 24 12))}
+            :nodes      [{:geometry   "grid"
+                          :color      color/white
+                          :transforms [(translation 0 -1 -3)
+                                       (axis-rotation (Math/toRadians 90.0) :x)
+                                       (scale 4 4 1)]}]})
 
 (def camera (transform/perspective-camera {:fovy (Math/toRadians 45.0)
                                            :near 1
