@@ -42,7 +42,7 @@
 
        (init [_ drawable]
          (log/info "init")
-         (let [gl (init-gl4 drawable {:debug? true :trace? true})]
+         (let [gl (init-gl4 drawable {:debug? false :trace? false})]
            (log/info "GL version =" (.glGetString gl GL4/GL_VERSION))
            (log/info "GL renderer =" (.glGetString gl GL4/GL_RENDERER))
            (.glEnable gl GL/GL_DEPTH_TEST)

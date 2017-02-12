@@ -6,7 +6,8 @@
             [clj-3d.engine.geometry :as geometry]
             [clj-3d.engine.scene.node :as node]
             [clojure.tools.logging :as log]
-            [medley.core :refer :all])
+            [medley.core :refer :all]
+            [clojure.pprint :refer [pprint]])
   (:import (com.jogamp.opengl GL4 GL GL3)))
 
 (defn- gl-gen-vertex-arrays [^GL3 gl n]
@@ -32,11 +33,13 @@
 
 (defn- create-object [^GL4 gl programs geometries node]
   (let [{:keys [material]} node
-        geometry (get geometries (:geometry node))
+        geometry (or (get geometries (:geometry node))
+                     (throw (RuntimeException. (str "No such geometry " (:geometry node)))))
         ^ints vaos (gl-gen-vertex-arrays gl 1)
         program (get programs (program-name-for-material material))]
     (.glBindVertexArray gl (aget vaos 0))
     (geometry/bind-attributes gl geometry program)
+    (.glBindVertexArray gl 0)
     {:vaos         vaos
      :geometry     geometry
      :material     material

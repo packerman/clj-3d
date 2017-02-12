@@ -1,5 +1,6 @@
 (ns clj-3d.engine.geometry
   (:require [clj-3d.engine.util.nio-buffer :as nio-buffer]
+            [medley.core :refer :all]
             [clojure.tools.logging :as log])
   (:import (com.jogamp.opengl GL4 GL GL2ES2)))
 
@@ -44,7 +45,7 @@
               (.glBufferSubData gl GL4/GL_ARRAY_BUFFER
                                 (get-in offsets [:offsets attribute])
                                 (:byte-size vertex-array)
-                                (:buffer vertex-array))))
+                                (:data vertex-array))))
           (vertex-arrays-count [vertex-arrays]
             (let [counts (->> (vals vertex-arrays) (map :count))]
               (assert (apply = counts))
@@ -57,7 +58,7 @@
           (create-index-buffer [index-array]
             (let [^ints ibos (gl-gen-buffers gl 1)]
               (.glBindBuffer gl GL4/GL_ELEMENT_ARRAY_BUFFER (aget ibos 0))
-              (.glBufferData gl GL4/GL_ELEMENT_ARRAY_BUFFER (:byte-size index-array) (:buffer index-array) GL4/GL_STATIC_DRAW)
+              (.glBufferData gl GL4/GL_ELEMENT_ARRAY_BUFFER (:byte-size index-array) (:data index-array) GL4/GL_STATIC_DRAW)
               ibos))]
     (let [{:keys [vertex-arrays index-array]} (allocate-nio-buffers-if-needed geometry-spec)
           offsets (attribute-offsets vertex-arrays)
@@ -65,7 +66,7 @@
           base-object {:vbos vbos
                        :mode (primitive->mode
                                (get geometry-spec :primitive :triangles))
-                       :vertex-arrays vertex-arrays
+                       :vertex-arrays (map-vals #(dissoc % :data) vertex-arrays)
                        :offsets offsets}]
       (copy-vertex-arrays-to-buffer gl vertex-arrays offsets)
       (if index-array
@@ -77,12 +78,14 @@
           :count (vertex-arrays-count vertex-arrays))))))
 
 (defn bind-attributes [^GL2ES2 gl geometry program]
-  (let [{:keys [vertex-arrays offsets]} geometry]
+  (let [{:keys [vertex-arrays offsets ^ints vbos]} geometry]
+    (.glBindBuffer gl GL2ES2/GL_ARRAY_BUFFER (aget vbos 0))
     (doseq [[attribute location] (get-in program [:locations :attributes])
             :let [vertex-array (vertex-arrays attribute)]]
       (.glEnableVertexAttribArray gl location)
       (.glVertexAttribPointer gl location (:dimension vertex-array) (:type vertex-array) false 0
-                              (get-in offsets [:offsets attribute])))))
+                              (get-in offsets [:offsets attribute])))
+    (.glBindBuffer gl GL2ES2/GL_ARRAY_BUFFER 0)))
 
 (defn draw-geometry [^GL2ES2 gl geometry]
   (let [{:keys [mode ^ints ibos elem-type count]} geometry]

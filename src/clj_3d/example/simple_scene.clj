@@ -36,13 +36,13 @@
                                                       "position" (circle-vertex-array [-0.5 -0.5] 0.4)}}
                          "polygon"   {:vertex-arrays {
                                                       "position" (polygon-vertex-array [[0.1 -0.4] [0.1 -0.9] [0.9 -0.9] [0.9 -0.4] [0.5 -0.1]])}}}
-            :nodes      [#_{:geometry "triangle"
+            :nodes      [{:geometry "triangle"
                           :color    color/orange}
-                         #_{:geometry "rectangle"
+                         {:geometry "rectangle"
                           :color    color/lime}
                          {:geometry "circle"
                           :color    color/red}
-                         #_{:geometry "polygon"
+                         {:geometry "polygon"
                           :color    color/yellow}]})
 
 (def app
