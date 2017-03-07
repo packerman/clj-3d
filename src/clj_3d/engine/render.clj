@@ -6,8 +6,8 @@
             [clj-3d.engine.geometry :as geometry]
             [clj-3d.engine.scene.node :as node]
             [clojure.tools.logging :as log]
-            [medley.core :refer :all]
-            [clojure.pprint :refer [pprint]])
+            [clj-3d.engine.util.error :as error]
+            [medley.core :refer :all])
   (:import (com.jogamp.opengl GL4 GL GL3)))
 
 (defn- gl-gen-vertex-arrays [^GL3 gl n]
@@ -21,10 +21,8 @@
     (get-in material [:colors :diffuse]) "diffuse"
     :else "flat"))
 
-(defn- create-object [^GL4 gl programs geometries node]
+(defn- create-object [^GL4 gl programs geometry node]
   (let [{:keys [material]} node
-        geometry (or (get geometries (:geometry node))
-                     (throw (RuntimeException. (str "No such geometry " (:geometry node)))))
         ^ints vaos (gl-gen-vertex-arrays gl 1)
         program (get programs (program-name-for-material material))]
     (.glBindVertexArray gl (aget vaos 0))
@@ -86,12 +84,16 @@
   (let [programs (program/build-programs gl)
         geometries (map-vals
                      (fn [geom] (geometry/create-geometry gl geom))
-                     (:geometries scene))]
+                     (:geometries scene))
+        get-geometry (fn [geometry-name]
+                       (let [geometry (get geometries geometry-name)]
+                         (error/throw-if (nil? geometry) (str "No such geometry " geometry-name))
+                         geometry))]
     {:lights     (scene :lights)
      :geometries geometries
      :objects    (doall
                    (for [node (:nodes scene)]
-                     (create-object gl programs geometries
+                     (create-object gl programs (get-geometry (:geometry node))
                                     (node/prepare-node node))))}))
 
 (defn render [gl render-object camera]
