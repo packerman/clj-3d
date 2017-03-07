@@ -10,5 +10,6 @@ pom.xml.asc
 .hgignore
 .hg/
 /.idea/
+*.iml
 *.log
 .DS_Store

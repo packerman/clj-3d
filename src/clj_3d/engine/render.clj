@@ -41,23 +41,18 @@
   (when-let [location (program/uniform-location program name)]
     (action location)))
 
-(defn- draw-object [^GL4 gl object matrices lights]
-  (let [{:keys [program ^ints vaos ^ints ibos elem-type count material mode geometry]} object
-        model-view-projection-matrix (transform/multiply (:projection-view-matrix matrices)
-                                                         (:model-matrix object))
-        model-view-matrix (transform/multiply (:view-matrix matrices)
-                                              (:model-matrix object))]
-    (program/use-program gl program)
-    (program/apply-material gl program material)
+(defn apply-lights [^GL4 gl program lights]
+  (when-let [[light & _] lights]
+    (let [[x y z] (:position light)
+          [r g b a] (:color light)]
+      (when-uniform-exists program "light_position" (fn [location]
+                                                      (.glUniform3f gl location x y z)))
+      (when-uniform-exists program "light_color" (fn [location]
+                                                   (.glUniform4f gl location r g b a))))))
 
-    (when-let [[light & _] lights]
-      (let [[x y z] (:position light)
-            [r g b a] (:color light)]
-        (when-uniform-exists program "light_position" (fn [location]
-                                                        (.glUniform3f gl location x y z)))
-        (when-uniform-exists program "light_color" (fn [location]
-                                                     (.glUniform4f gl location r g b a)))))
-
+(defn apply-matrices [^GL4 gl program matrices model-matrix]
+  (let [model-view-projection-matrix (transform/multiply (:projection-view-matrix matrices) model-matrix)
+        model-view-matrix (transform/multiply (:view-matrix matrices) model-matrix)]
     (when-uniform-exists program "model_view_matrix" (fn [location]
                                                        (.glUniformMatrix4fv gl location 1 false
                                                                             model-view-matrix 0)))
@@ -67,7 +62,17 @@
                                                                             transform/inverse
                                                                             transform/transpose) 0)))
     (.glUniformMatrix4fv gl (program/uniform-location program "model_view_projection_matrix")
-                         1 false model-view-projection-matrix 0)
+                         1 false model-view-projection-matrix 0)))
+
+(defn- draw-object [^GL4 gl object matrices lights]
+  (let [{:keys [program ^ints vaos ^ints ibos elem-type count material mode geometry]} object]
+    (program/use-program gl program)
+    (program/apply-material gl program material)
+
+    (apply-lights gl program lights)
+
+    (apply-matrices gl program matrices (:model-matrix object))
+
     (.glBindVertexArray gl (aget vaos 0))
     (geometry/draw-geometry gl geometry)
     (.glBindVertexArray gl 0)))
