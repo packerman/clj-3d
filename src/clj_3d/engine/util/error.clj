@@ -3,3 +3,6 @@
 (defn throw-if [condition ^String message]
   (when condition
     (throw (RuntimeException. message))))
+
+(defn error [^String message]
+  (throw (RuntimeException. message)))

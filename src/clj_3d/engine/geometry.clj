@@ -1,7 +1,8 @@
 (ns clj-3d.engine.geometry
   (:require [clj-3d.engine.util.nio-buffer :as nio-buffer]
             [medley.core :refer :all]
-            [clojure.tools.logging :as log])
+            [clojure.tools.logging :as log]
+            [clj-3d.engine.util.error :refer :all])
   (:import (com.jogamp.opengl GL4 GL GL2ES2)))
 
 (def primitive->mode {:triangles GL/GL_TRIANGLES
@@ -12,21 +13,27 @@
     (.glGenBuffers gl n buffers 0)
     buffers))
 
+(defn- prepare-geometry-spec [geometry]
+  (if-let [index-array (:index-array geometry)]
+    (assoc geometry :index-arrays {0 index-array})
+    geometry))
+
 (defn- allocate-nio-buffers-if-needed [geometry]
   (letfn [(create-vertex-nio-buffer-if-needed [n]
-            (letfn [(update-vertex-array [vertex-arrays]
-                      (into {}
-                            (for [[name data] vertex-arrays]
-                              [name (if (nio-buffer/is-nio-buffer? data)
-                                      data
-                                      (nio-buffer/float-buffer data))])))]
-              (update n :vertex-arrays update-vertex-array)))
+            (update n :vertex-arrays (fn [vertex-arrays]
+                                       (into {}
+                                             (for [[name data] vertex-arrays]
+                                               [name (if (nio-buffer/is-nio-buffer? data)
+                                                       data
+                                                       (nio-buffer/float-buffer data))])))))
           (create-index-nio-buffer-if-needed [n]
-            (update n :index-array (fn [data]
-                                                (cond
-                                                  (not data) data
-                                                  (nio-buffer/is-nio-buffer? data) data
-                                                  :else (nio-buffer/int-buffer data)))))]
+            (update n :index-arrays (fn [index-arrays]
+                                     (into {}
+                                           (for [[index data] index-arrays]
+                                             [index (cond
+                                                      (not data) data
+                                                      (nio-buffer/is-nio-buffer? data) data
+                                                      :else (nio-buffer/int-buffer data))])))))]
     (-> geometry
         create-vertex-nio-buffer-if-needed
         create-index-nio-buffer-if-needed)))
@@ -59,20 +66,27 @@
             (let [^ints ibos (gl-gen-buffers gl 1)]
               (.glBindBuffer gl GL4/GL_ELEMENT_ARRAY_BUFFER (aget ibos 0))
               (.glBufferData gl GL4/GL_ELEMENT_ARRAY_BUFFER (:byte-size index-array) (:data index-array) GL4/GL_STATIC_DRAW)
-              ibos))]
-    (let [{:keys [vertex-arrays index-array]} (allocate-nio-buffers-if-needed geometry-spec)
+              ibos))
+          (get-index-arrays []
+            (if-let [index-array (:index-array geometry-spec)]
+              {0 index-array}
+              (:index-arrays geometry-spec)))]
+    (let [{:keys [vertex-arrays index-arrays]} (allocate-nio-buffers-if-needed
+                                    (prepare-geometry-spec
+                                      geometry-spec))
+          index-arrays (get-index-arrays)
           offsets (attribute-offsets vertex-arrays)
           vbos (create-vertex-buffer (:total-size offsets))
-          base-object {:vbos vbos
-                       :mode (primitive->mode
-                               (get geometry-spec :primitive :triangles))
+          base-object {:vbos          vbos
+                       :mode          (primitive->mode
+                                        (get geometry-spec :primitive :triangles))
                        :vertex-arrays (map-vals #(dissoc % :data) vertex-arrays)
-                       :offsets offsets}]
+                       :offsets       offsets}]
       (copy-vertex-arrays-to-buffer gl vertex-arrays offsets)
       (if index-array
         (assoc base-object
           :ibos (create-index-buffer index-array)
-          :count     (:count index-array)
+          :count (:count index-array)
           :elem-type (:type index-array))
         (assoc base-object
           :count (vertex-arrays-count vertex-arrays))))))
