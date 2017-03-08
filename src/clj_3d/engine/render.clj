@@ -77,8 +77,7 @@
 
 (defn- dispose-object! [^GL4 gl object]
   (let [{:keys [vaos geometry]} object]
-    (.glDeleteVertexArrays gl 1 vaos 0)
-    (geometry/dispose-geometry gl geometry)))
+    (.glDeleteVertexArrays gl 1 vaos 0)))
 
 (defn create-render-object [gl scene]
   (let [programs (program/build-programs gl)
@@ -104,4 +103,6 @@
 
 (defn dispose! [gl render-object]
   (doseq [object (:objects render-object)]
-    (dispose-object! gl object)))
+    (dispose-object! gl object))
+  (doseq [geometry (vals (:geometries render-object))]
+    (geometry/dispose-geometry gl geometry)))
