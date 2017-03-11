@@ -26,6 +26,7 @@ FIXME: listing of options this app accepts.
 * cube from grids
 * cube normal material
 * cube diffuse
+* many materials
 
 ### Bugs
 
