@@ -68,28 +68,28 @@
                          1 false model-view-projection-matrix 0)))
 
 (defn- draw-object [^GL4 gl object matrices lights]
-  (letfn [(draw-with-program-and-material [program material ^ints vaos draw-action]
+  (letfn [(draw-with-program-and-material [program material]
             (program/use-program gl program)
             (program/apply-material gl program material)
 
             (apply-lights gl program lights)
 
-            (apply-matrices gl program matrices (:model-matrix object))
-
+            (apply-matrices gl program matrices (:model-matrix object)))
+          (draw-with-index-arrays [geometry materials programs ^ints vaos]
             (.glBindVertexArray gl (aget vaos 0))
-            (draw-action)
-            (.glBindVertexArray gl 0))
-          (draw-with-index-arrays [geometry materials programs vaos]
             (geometry/bind-index-array gl geometry)
             (doseq [[index material] materials
                     :let [program (get programs index)]]
-              (draw-with-program-and-material program material vaos
-                                              #(geometry/draw-index-array gl geometry index))))
-          (draw-with-vertex-arrays [geometry materials programs vaos]
+              (draw-with-program-and-material program material)
+              (geometry/draw-index-array gl geometry index))
+            (.glBindVertexArray gl 0))
+          (draw-with-vertex-arrays [geometry materials programs ^ints vaos]
             (let [material (get materials 0)
                   program (get programs 0)]
-              (draw-with-program-and-material program material vaos
-                                              #(geometry/draw-vertex-array gl geometry))))]
+              (draw-with-program-and-material program material)
+              (.glBindVertexArray gl (aget vaos 0))
+              (geometry/draw-vertex-array gl geometry)
+              (.glBindVertexArray gl 0)))]
     (let [{:keys [programs ^ints vaos elem-type materials geometry]} object]
       (if (geometry/has-index-arrays? geometry)
         (draw-with-index-arrays geometry materials programs vaos)
@@ -112,8 +112,6 @@
                   (for [node (:nodes scene)]
                     (create-object gl programs (get-geometry (:geometry node))
                                    (node/prepare-node node))))]
-    (println objects)
-    (println geometries)
     {:lights     (scene :lights)
      :geometries geometries
      :objects objects}))
