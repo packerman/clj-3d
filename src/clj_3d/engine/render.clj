@@ -1,11 +1,8 @@
 (ns clj-3d.engine.render
-  (:require [clj-3d.engine.shader :as shader]
-            [clj-3d.engine.program :as program]
-            [clj-3d.engine.color :as color]
+  (:require [clj-3d.engine.program :as program]
             [clj-3d.engine.transform :as transform]
             [clj-3d.engine.geometry :as geometry]
             [clj-3d.engine.scene.node :as node]
-            [clojure.tools.logging :as log]
             [clj-3d.engine.util.error :as error]
             [medley.core :refer :all])
   (:import (com.jogamp.opengl GL4 GL GL3)))
@@ -68,7 +65,7 @@
                          1 false model-view-projection-matrix 0)))
 
 (defn- draw-object [^GL4 gl object matrices lights]
-  (letfn [(draw-with-program-and-material [program material]
+  (letfn [(apply-uniforms [program material]
             (program/use-program gl program)
             (program/apply-material gl program material)
 
@@ -80,13 +77,13 @@
             (geometry/bind-index-array gl geometry)
             (doseq [[index material] materials
                     :let [program (get programs index)]]
-              (draw-with-program-and-material program material)
+              (apply-uniforms program material)
               (geometry/draw-index-array gl geometry index))
             (.glBindVertexArray gl 0))
           (draw-with-vertex-arrays [geometry materials programs ^ints vaos]
             (let [material (get materials 0)
                   program (get programs 0)]
-              (draw-with-program-and-material program material)
+              (apply-uniforms program material)
               (.glBindVertexArray gl (aget vaos 0))
               (geometry/draw-vertex-array gl geometry)
               (.glBindVertexArray gl 0)))]

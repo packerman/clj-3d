@@ -3,8 +3,7 @@
             [medley.core :refer :all]
             [clojure.tools.logging :as log]
             [clj-3d.engine.util.error :refer :all]
-            [medley.core :refer :all]
-            [clj-3d.engine.program :as program])
+            [medley.core :refer :all])
   (:import (com.jogamp.opengl GL4 GL GL2ES2)))
 
 (def primitive->mode {:triangles GL/GL_TRIANGLES
