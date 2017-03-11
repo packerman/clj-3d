@@ -89,4 +89,4 @@
 
 (defn -main
   [& args]
-  (application/launch app {:width 1280 :height 800}))
+  (application/launch app #_{:width 1280 :height 800}))

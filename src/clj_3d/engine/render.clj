@@ -22,18 +22,23 @@
     :else "flat"))
 
 (defn- create-object [^GL4 gl programs geometry node]
-  (let [{:keys [material]} node
+  (let [{:keys [materials]} node
         ^ints vaos (gl-gen-vertex-arrays gl 1)
-        program (get programs (program-name-for-material material))]
+        programs (map-vals
+                   (fn [material]
+                     (get programs (program-name-for-material material)))
+                   materials)]
     (.glBindVertexArray gl (aget vaos 0))
-    (geometry/bind-attributes gl geometry program)
+    (doseq [program (vals programs)]
+      (program/use-program gl program)
+      (geometry/bind-attributes gl geometry program))
     (.glBindVertexArray gl 0)
     {:vaos         vaos
      :geometry     geometry
-     :material     material
+     :materials    materials
      :model-matrix (transform/multiply*
                      (:transforms node))
-     :program      program}))
+     :programs     programs}))
 
 (defn when-uniform-exists [program name action]
   (when-let [location (program/uniform-location program name)]
@@ -63,17 +68,32 @@
                          1 false model-view-projection-matrix 0)))
 
 (defn- draw-object [^GL4 gl object matrices lights]
-  (let [{:keys [program ^ints vaos ^ints ibos elem-type count material mode geometry]} object]
-    (program/use-program gl program)
-    (program/apply-material gl program material)
+  (letfn [(draw-with-program-and-material [program material ^ints vaos draw-action]
+            (program/use-program gl program)
+            (program/apply-material gl program material)
 
-    (apply-lights gl program lights)
+            (apply-lights gl program lights)
 
-    (apply-matrices gl program matrices (:model-matrix object))
+            (apply-matrices gl program matrices (:model-matrix object))
 
-    (.glBindVertexArray gl (aget vaos 0))
-    (geometry/draw-geometry gl geometry)
-    (.glBindVertexArray gl 0)))
+            (.glBindVertexArray gl (aget vaos 0))
+            (draw-action)
+            (.glBindVertexArray gl 0))
+          (draw-with-index-arrays [geometry materials programs vaos]
+            (geometry/bind-index-array gl geometry)
+            (doseq [[index material] materials
+                    :let [program (get programs index)]]
+              (draw-with-program-and-material program material vaos
+                                              #(geometry/draw-index-array gl geometry index))))
+          (draw-with-vertex-arrays [geometry materials programs vaos]
+            (let [material (get materials 0)
+                  program (get programs 0)]
+              (draw-with-program-and-material program material vaos
+                                              #(geometry/draw-vertex-array gl geometry))))]
+    (let [{:keys [programs ^ints vaos elem-type materials geometry]} object]
+      (if (geometry/has-index-arrays? geometry)
+        (draw-with-index-arrays geometry materials programs vaos)
+        (draw-with-vertex-arrays geometry materials programs vaos)))))
 
 (defn- dispose-object! [^GL4 gl object]
   (let [{:keys [vaos geometry]} object]
@@ -87,13 +107,16 @@
         get-geometry (fn [geometry-name]
                        (let [geometry (get geometries geometry-name)]
                          (error/throw-if (nil? geometry) (str "No such geometry " geometry-name))
-                         geometry))]
+                         geometry))
+        objects (doall
+                  (for [node (:nodes scene)]
+                    (create-object gl programs (get-geometry (:geometry node))
+                                   (node/prepare-node node))))]
+    (println objects)
+    (println geometries)
     {:lights     (scene :lights)
      :geometries geometries
-     :objects    (doall
-                   (for [node (:nodes scene)]
-                     (create-object gl programs (get-geometry (:geometry node))
-                                    (node/prepare-node node))))}))
+     :objects objects}))
 
 (defn render [gl render-object camera]
   (let [matrices {:projection-view-matrix (transform/get-projection-view-matrix camera)
