@@ -46,3 +46,7 @@
    (-> (byte-at color-hex 16) float (/ 0xff))
    (-> (byte-at color-hex 8) float (/ 0xff))
    (-> (byte-at color-hex 0) float (/ 0xff))])
+
+(defn scale-color [c k]
+  (let [[r g b a] c]
+    [(* k r) (* k g) (* k b) a]))
