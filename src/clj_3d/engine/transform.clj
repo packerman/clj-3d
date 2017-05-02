@@ -16,6 +16,8 @@
      :z (translation 0 0 d))))
 
 (defn axis-rotation [angle axis]
+  "Rotate angle - angle in radians.
+                  axis - [x y z] or :x, :y, :z"
   (let [matrix (float-array 16)
         tmp-vector (float-array 3)]
     (condp = axis

@@ -10,11 +10,18 @@
 (def scene {
             :geometries {
                          "monkey" (obj/load-obj-geometry (io/resource "model/obj/monkey.obj"))
+                         "torus" (obj/load-obj-geometry (io/resource "model/obj/torus.obj"))
                          }
             :nodes [{:geometry "monkey"
                      :material {:colors {:ambient (color/scale-color (color/to-rgba-float color/yellow) 0.4)
                                          :diffuse (color/to-rgba-float color/yellow)}}
-                     :transforms []}]
+                     :transforms []}
+                    {:geometry "torus"
+                     :material {:colors {:ambient (color/scale-color (color/to-rgba-float color/red) 0.4)
+                                         :diffuse (color/to-rgba-float color/red)}}
+                     :transforms [(transform/scale 1.5 1.5 1.5)
+                                  (transform/translation -3 0 -2)
+                                  (transform/axis-rotation (Math/toRadians 73) :x)]}]
             :lights [{
                       :position [2 3 -2]
                       :color    (color/to-rgba-float color/white)}]
@@ -32,4 +39,4 @@
 
 (defn -main
   [& args]
-  (application/launch app #_{:width 1280 :height 800}))
+  (application/launch app {:width 1280 :height 800}))
