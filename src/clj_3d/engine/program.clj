@@ -1,5 +1,6 @@
 (ns clj-3d.engine.program
-  (:require [clj-3d.engine.shader :as shader])
+  (:require [clojure.tools.logging :as log]
+            [clj-3d.engine.shader :as shader])
   (:import (com.jogamp.opengl GL2ES2)))
 
 (def programs-to-build #{
@@ -22,20 +23,34 @@
                           :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
                                         "material_ambient" "material_diffuse"
                                         "light_color" "light_position"}}
+                         {:name       "specular"
+                          :attributes {
+                                       "position" 0
+                                       "normal"   1
+                                       }
+                          :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
+                                        "material_ambient" "material_diffuse" "material_specular"
+                                        "specular_power"
+                                        "light_color" "light_position"}}
                          })
 
 (defn build-programs [^GL2ES2 gl]
-  (into {}
-    (for [program-to-build programs-to-build
-          :let [{:keys [name]} program-to-build
-                program-id (shader/build-program gl name)]]
-      [name {:program-id program-id
-             :name name
-             :locations {
-                         :attributes (:attributes program-to-build)
-                         :uniforms (into {}
-                                         (for [uniform-name (:uniforms program-to-build)]
-                                           [uniform-name (.glGetUniformLocation gl program-id uniform-name)]))}}])))
+  (letfn [(get-uniform-location [program-id uniform-name]
+            (let [uniform-location (.glGetUniformLocation gl program-id uniform-name)]
+              (when (neg? uniform-location)
+                (log/warn uniform-name "location =" uniform-location "in program" program-id))
+              uniform-location))]
+    (into {}
+          (for [program-to-build programs-to-build
+                :let [{:keys [name]} program-to-build
+                      program-id (shader/build-program gl name)]]
+            [name {:program-id program-id
+                   :name       name
+                   :locations  {
+                                :attributes (:attributes program-to-build)
+                                :uniforms   (into {}
+                                                  (for [uniform-name (:uniforms program-to-build)]
+                                                    [uniform-name (get-uniform-location program-id uniform-name)]))}}]))))
 
 (defn attribute-location [program nane]
   (get-in program [:locations :attributes name]))
@@ -57,5 +72,15 @@
 (defmethod apply-material "diffuse" [^GL2ES2 gl program material]
   (let [[ra ga ba] (get-in material [:colors :ambient])
         [rd gd bd] (get-in material [:colors :diffuse])]
-    (.glUniform4f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba 1)
-    (.glUniform4f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd 1)))
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba)
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd)))
+
+(defmethod apply-material "specular" [^GL2ES2 gl program material]
+  (let [[ra ga ba] (get-in material [:colors :ambient])
+        [rd gd bd] (get-in material [:colors :diffuse])
+        [rs gs bs] (get-in material [:colors :specular])
+        specular-power (get material :specular-power 1.0)]
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba)
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd)
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_specular"]) rs gs bs)
+    (.glUniform1f gl (get-in program [:locations :uniforms "specular_power"]) specular-power)))

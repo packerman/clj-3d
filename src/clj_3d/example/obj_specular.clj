@@ -1,4 +1,4 @@
-(ns clj-3d.example.obj-model
+(ns clj-3d.example.obj-specular
   (:gen-class)
   (:require [clojure.java.io :as io]
             [clj-3d.engine.color :as color]
@@ -14,11 +14,15 @@
                          }
             :nodes [{:geometry "monkey"
                      :material {:colors {:ambient (color/scale-color (color/to-rgba-float color/orange) 0.4)
-                                         :diffuse (color/to-rgba-float color/orange)}}
+                                         :diffuse (color/to-rgba-float color/orange)
+                                         :specular (color/to-rgba-float color/white)}
+                                :specular-power 10.0}
                      :transforms []}
                     {:geometry "torus"
                      :material {:colors {:ambient (color/scale-color (color/to-rgba-float color/red) 0.4)
-                                         :diffuse (color/to-rgba-float color/red)}}
+                                         :diffuse (color/to-rgba-float color/red)
+                                         :specular (color/to-rgba-float color/white)}
+                                :specular-power 10.0}
                      :transforms [(transform/scale 1.5 1.5 1.5)
                                   (transform/translation -3 0 -2)
                                   (transform/axis-rotation (Math/toRadians 73) :x)]}]

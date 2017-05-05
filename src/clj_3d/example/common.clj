@@ -43,7 +43,7 @@
        (init [_ drawable]
          (log/info "init")
          (let [gl (init-gl4 drawable {:debug? false :trace? false})]
-           (log/info "Java =" (System/getProperty "java.vendor") (System/getProperty "java.version") (str "(" (System/getProperty "java.home") ")"))
+           (log/info "Java =" (System/getProperty "java.vendor") (System/getProperty "java.version"))
            (log/info "Clojure =" (clojure-version))
            (log/info "OS =" (System/getProperty "os.name") (System/getProperty "os.version") (System/getProperty "os.arch"))
            (log/info "GL =" (.glGetString gl GL4/GL_RENDERER) (.glGetString gl GL4/GL_VERSION))

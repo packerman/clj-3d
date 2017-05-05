@@ -15,6 +15,7 @@
 (defn- program-name-for-material [material]
   (cond
     (= material :normal) "normal"
+    (get-in material [:colors :specular]) "specular"
     (get-in material [:colors :diffuse]) "diffuse"
     :else "flat"))
 
@@ -44,11 +45,11 @@
 (defn apply-lights [^GL4 gl program lights]
   (when-let [[light & _] lights]
     (let [[x y z] (:position light)
-          [r g b a] (:color light)]
+          [r g b] (:color light)]
       (when-uniform-exists program "light_position" (fn [location]
                                                       (.glUniform3f gl location x y z)))
       (when-uniform-exists program "light_color" (fn [location]
-                                                   (.glUniform4f gl location r g b a))))))
+                                                   (.glUniform3f gl location r g b))))))
 
 (defn apply-matrices [^GL4 gl program matrices model-matrix]
   (let [model-view-projection-matrix (transform/multiply (:projection-view-matrix matrices) model-matrix)
