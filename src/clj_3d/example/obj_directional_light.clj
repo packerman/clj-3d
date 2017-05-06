@@ -1,4 +1,4 @@
-(ns clj-3d.example.obj-model
+(ns clj-3d.example.obj-directional-light
   (:gen-class)
   (:require [clojure.java.io :as io]
             [clj-3d.engine.color :as color]
@@ -10,21 +10,28 @@
 (def scene {
             :geometries {
                          "monkey" (obj/load-obj-geometry (io/resource "model/obj/monkey.obj"))
-                         "torus"  (obj/load-obj-geometry (io/resource "model/obj/torus_with_normals.obj"))
+                         "torus"  (obj/load-obj-geometry (io/resource "model/obj/torus.obj"))
                          }
             :nodes      [{:geometry   "monkey"
-                          :material   {:colors {:ambient (color/scale-color color/orange 0.4)
-                                                :diffuse color/orange}}
+                          :material   {:colors         {:ambient  (color/scale-color color/orange 0.4)
+                                                        :diffuse  color/orange
+                                                        :specular color/white}
+                                       :specular-power 10.0
+                                       :smooth         true}
                           :transforms []}
                          {:geometry   "torus"
-                          :material   {:colors {:ambient (color/scale-color color/red 0.4)
-                                                :diffuse color/red}}
+                          :material   {:colors         {:ambient  (color/scale-color color/red 0.4)
+                                                        :diffuse  color/red
+                                                        :specular color/white}
+                                       :specular-power 10.0
+                                       :smooth         true}
                           :transforms [(transform/scale 1.5 1.5 1.5)
                                        (transform/translation -3 0 -2)
                                        (transform/axis-rotation (Math/toRadians 75) :x)]}]
             :lights     [{
                           :position [4 3 4]
-                          :color    color/white}]
+                          :color    color/white
+                          :type :directional}]
             })
 
 (def camera (transform/perspective-camera {:fovy (Math/toRadians 60.0)
@@ -35,7 +42,7 @@
                                            :up     [0 1 0]}))
 
 (def app
-  (common/make-application-for-scene scene camera))
+  (common/make-application-for-scene scene camera {:clear-color color/deep-sky-blue}))
 
 (defn -main
   [& args]

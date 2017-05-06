@@ -27,7 +27,7 @@
                                        :smooth         true}
                           :transforms [(transform/scale 1.5 1.5 1.5)
                                        (transform/translation -3 0 -2)
-                                       (transform/axis-rotation (Math/toRadians 73) :x)]}]
+                                       (transform/axis-rotation (Math/toRadians 75) :x)]}]
             :lights     [{
                           :position [4 3 4]
                           :color    color/white}]
@@ -41,7 +41,7 @@
                                            :up     [0 1 0]}))
 
 (def app
-  (common/make-application-for-scene scene camera))
+  (common/make-application-for-scene scene camera {:clear-color color/deep-sky-blue}))
 
 (defn -main
   [& args]

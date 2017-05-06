@@ -8,7 +8,7 @@
      (-> (byte-at color-hex 8) float (/ 0xff))
      (-> (byte-at color-hex 0) float (/ 0xff))]))
 
-(def limeg-reen (to-rgba 0x32CD32FF))
+(def lime-green (to-rgba 0x32CD32FF))
 (def lime (to-rgba 0x00FF00FF))
 (def forest-green (to-rgba 0x228B22FF))
 (def green (to-rgba 0x008000FF))

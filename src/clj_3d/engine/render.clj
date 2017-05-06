@@ -31,18 +31,29 @@
                      (:transforms node))
      :programs     programs}))
 
+(defn bool->gl [value]
+  (if value GL/GL_TRUE GL/GL_FALSE))
+
 (defn when-uniform-exists [program name action]
   (when-let [location (program/uniform-location program name)]
     (action location)))
 
 (defn apply-lights [^GL4 gl program lights]
-  (when-let [[light & _] lights]
-    (let [[x y z] (:position light)
-          [r g b] (:color light)]
-      (when-uniform-exists program "light_position" (fn [location]
-                                                      (.glUniform3f gl location x y z)))
-      (when-uniform-exists program "light_color" (fn [location]
-                                                   (.glUniform3f gl location r g b))))))
+  (letfn [(is-directional-light? [light]
+            (condp = (:type light)
+              :directional true
+              :positional false
+              false))]
+    (when-let [[light & _] lights]
+      (let [[x y z] (:position light)
+            [r g b] (:color light)]
+        (when-uniform-exists program "light_position" (fn [location]
+                                                        (.glUniform3f gl location x y z)))
+        (when-uniform-exists program "light_color" (fn [location]
+                                                     (.glUniform3f gl location r g b)))
+        (when-uniform-exists program "light_is_directional" (fn [location]
+                                                              (.glUniform1i gl location
+                                                                            (bool->gl (is-directional-light? light)))))))))
 
 (defn apply-matrices [^GL4 gl program matrices model-matrix]
   (let [model-view-projection-matrix (transform/multiply (:projection-view-matrix matrices) model-matrix)
