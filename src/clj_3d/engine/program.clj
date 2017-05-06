@@ -23,7 +23,16 @@
                           :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
                                         "material_ambient" "material_diffuse"
                                         "light_color" "light_position"}}
-                         {:name       "specular"
+                         {:name       "gouraud"
+                          :attributes {
+                                       "position" 0
+                                       "normal"   1
+                                       }
+                          :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
+                                        "material_ambient" "material_diffuse" "material_specular"
+                                        "specular_power"
+                                        "light_color" "light_position"}}
+                         {:name       "phong"
                           :attributes {
                                        "position" 0
                                        "normal"   1
@@ -75,7 +84,17 @@
     (.glUniform3f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba)
     (.glUniform3f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd)))
 
-(defmethod apply-material "specular" [^GL2ES2 gl program material]
+(defmethod apply-material "gouraud" [^GL2ES2 gl program material]
+  (let [[ra ga ba] (get-in material [:colors :ambient])
+        [rd gd bd] (get-in material [:colors :diffuse])
+        [rs gs bs] (get-in material [:colors :specular])
+        specular-power (get material :specular-power 1.0)]
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_ambient"]) ra ga ba)
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_diffuse"]) rd gd bd)
+    (.glUniform3f gl (get-in program [:locations :uniforms "material_specular"]) rs gs bs)
+    (.glUniform1f gl (get-in program [:locations :uniforms "specular_power"]) specular-power)))
+
+(defmethod apply-material "phong" [^GL2ES2 gl program material]
   (let [[ra ga ba] (get-in material [:colors :ambient])
         [rd gd bd] (get-in material [:colors :diffuse])
         [rs gs bs] (get-in material [:colors :specular])

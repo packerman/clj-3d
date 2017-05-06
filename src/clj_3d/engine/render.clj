@@ -15,7 +15,8 @@
 (defn- program-name-for-material [material]
   (cond
     (= material :normal) "normal"
-    (get-in material [:colors :specular]) "specular"
+    (and (get-in material [:colors :specular]) (:smooth material))  "phong"
+    (get-in material [:colors :specular]) "gouraud"
     (get-in material [:colors :diffuse]) "diffuse"
     :else "flat"))
 
