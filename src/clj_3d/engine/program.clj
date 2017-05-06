@@ -3,6 +3,14 @@
             [clj-3d.engine.shader :as shader])
   (:import (com.jogamp.opengl GL2ES2)))
 
+(defn program-name-for-material [material]
+  (cond
+    (= material :normal) "normal"
+    (and (get-in material [:colors :specular]) (:smooth material))  "phong"
+    (get-in material [:colors :specular]) "gouraud"
+    (get-in material [:colors :diffuse]) "diffuse"
+    :else "flat"))
+
 (def programs-to-build #{
                          {:name       "flat"
                           :attributes {

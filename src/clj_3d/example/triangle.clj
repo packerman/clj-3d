@@ -10,7 +10,7 @@
                                                              [-0.5 -0.5]
                                                              [0.5 -0.5]])}
             :nodes      [{:geometry "triangle"
-                          :color    (color/to-rgba-float color/spring-green)}]
+                          :color    color/spring-green}]
             })
 
 (def app

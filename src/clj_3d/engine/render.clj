@@ -12,20 +12,12 @@
     (.glGenVertexArrays gl n arrays 0)
     arrays))
 
-(defn- program-name-for-material [material]
-  (cond
-    (= material :normal) "normal"
-    (and (get-in material [:colors :specular]) (:smooth material))  "phong"
-    (get-in material [:colors :specular]) "gouraud"
-    (get-in material [:colors :diffuse]) "diffuse"
-    :else "flat"))
-
 (defn- create-object [^GL4 gl programs geometry node]
   (let [{:keys [materials]} node
         ^ints vaos (gl-gen-vertex-arrays gl 1)
         programs (map-vals
                    (fn [material]
-                     (get programs (program-name-for-material material)))
+                     (get programs (program/program-name-for-material material)))
                    materials)]
     (.glBindVertexArray gl (aget vaos 0))
     (doseq [program (vals programs)]

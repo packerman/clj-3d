@@ -5,30 +5,30 @@
             [clj-3d.engine.transform :as transform]
             [clj-3d.application :as application]
             [clj-3d.example.common :as common]
-    [clj-3d.engine.model.obj :as obj]))
+            [clj-3d.engine.model.obj :as obj]))
 
 (def scene {
             :geometries {
                          "monkey" (obj/load-obj-geometry (io/resource "model/obj/monkey.obj"))
-                         "torus" (obj/load-obj-geometry (io/resource "model/obj/torus.obj"))
+                         "torus"  (obj/load-obj-geometry (io/resource "model/obj/torus.obj"))
                          }
-            :nodes [{:geometry "monkey"
-                     :material {:colors {:ambient (color/scale-color (color/to-rgba-float color/orange) 0.4)
-                                         :diffuse (color/to-rgba-float color/orange)
-                                         :specular (color/to-rgba-float color/white)}
-                                :specular-power 10.0}
-                     :transforms []}
-                    {:geometry "torus"
-                     :material {:colors {:ambient (color/scale-color (color/to-rgba-float color/red) 0.4)
-                                         :diffuse (color/to-rgba-float color/red)
-                                         :specular (color/to-rgba-float color/white)}
-                                :specular-power 10.0}
-                     :transforms [(transform/scale 1.5 1.5 1.5)
-                                  (transform/translation -3 0 -2)
-                                  (transform/axis-rotation (Math/toRadians 73) :x)]}]
-            :lights [{
-                      :position [4 3 4]
-                      :color    (color/to-rgba-float color/white)}]
+            :nodes      [{:geometry   "monkey"
+                          :material   {:colors         {:ambient  (color/scale-color color/orange 0.4)
+                                                        :diffuse  color/orange
+                                                        :specular color/white}
+                                       :specular-power 10.0}
+                          :transforms []}
+                         {:geometry   "torus"
+                          :material   {:colors         {:ambient  (color/scale-color color/red 0.4)
+                                                        :diffuse  color/red
+                                                        :specular color/white}
+                                       :specular-power 10.0}
+                          :transforms [(transform/scale 1.5 1.5 1.5)
+                                       (transform/translation -3 0 -2)
+                                       (transform/axis-rotation (Math/toRadians 73) :x)]}]
+            :lights     [{
+                          :position [4 3 4]
+                          :color    color/white}]
             })
 
 (def camera (transform/perspective-camera {:fovy (Math/toRadians 60.0)

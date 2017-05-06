@@ -65,7 +65,7 @@
                           }]
             :lights     [{
                           :position [2 4 -2]
-                          :color    (color/to-rgba-float color/white)}]
+                          :color    color/white}]
             })
 
 (def camera (transform/perspective-camera {:fovy (Math/toRadians 60.0)

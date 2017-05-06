@@ -29,7 +29,7 @@
   (^GL4 [^GLAutoDrawable drawable] (init-gl4 drawable {})))
 
 (defn set-clear-color! [^GL gl color]
-  (let [[r g b a] (color/to-rgba-float color)]
+  (let [[r g b a] color]
     (.glClearColor gl r g b a)))
 
 (defn make-application-for-scene

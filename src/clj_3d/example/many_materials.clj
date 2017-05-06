@@ -34,12 +34,12 @@
                                                                                        [0xBF800000 0x00000000 0x00000000] [0xBF800000 0x00000000 0x00000000]
                                                                                        [0xBF800000 0x00000000 0x00000000] [0xBF800000 0x00000000 0x00000000]])
                                                    }
-                                   :index-arrays {0 [[0 1 2] [2 3 0]]
-                                                  1 [[4 5 6] [6 7 4]]
-                                                  2 [[8 9 10] [10 11 8]]
-                                                  3 [[12 13 14] [14 15 12]]
-                                                  4 [[16 17 18] [18 19 16]]
-                                                  5 [[20 21 22] [22 23 20]]}}
+                                   :index-arrays  {0 [[0 1 2] [2 3 0]]
+                                                   1 [[4 5 6] [6 7 4]]
+                                                   2 [[8 9 10] [10 11 8]]
+                                                   3 [[12 13 14] [14 15 12]]
+                                                   4 [[16 17 18] [18 19 16]]
+                                                   5 [[20 21 22] [22 23 20]]}}
                          "grid"   {:primitive     :lines
                                    :vertex-arrays {
                                                    "position" (common/grid-vertex-array 11 11)}}}
@@ -49,32 +49,32 @@
                                        (transform/scale 10 10 10)]}
 
                          {:geometry   "cube50"
-                          :materials {
-                                      0 {:colors {
-                                                  :ambient color/red
-                                                  :diffuse color/red}}
-                                      1 {:colors {
-                                                  :ambient color/green
-                                                  :diffuse color/green}}
-                                      2 {:colors {
-                                                  :ambient color/blue
-                                                  :diffuse color/blue}}
-                                      3 {:colors {
-                                                  :ambient color/yellow
-                                                  :diffuse color/yellow}}
-                                      4 {:colors {
-                                                  :ambient color/orange
-                                                  :diffuse color/orange}}
-                                      5 {:colors {
-                                                  :ambient color/magenta
-                                                  :diffuse color/magenta}}}
+                          :materials  {
+                                       0 {:colors {
+                                                   :ambient color/red
+                                                   :diffuse color/red}}
+                                       1 {:colors {
+                                                   :ambient color/green
+                                                   :diffuse color/green}}
+                                       2 {:colors {
+                                                   :ambient color/blue
+                                                   :diffuse color/blue}}
+                                       3 {:colors {
+                                                   :ambient color/yellow
+                                                   :diffuse color/yellow}}
+                                       4 {:colors {
+                                                   :ambient color/orange
+                                                   :diffuse color/orange}}
+                                       5 {:colors {
+                                                   :ambient color/magenta
+                                                   :diffuse color/magenta}}}
 
                           :transforms [(transform/translation 2.5 0.5 2)
                                        (transform/scale 0.01 0.01 0.01)]
                           }]
             :lights     [{
                           :position [2 4 -2]
-                          :color    (color/to-rgba-float color/white)}]
+                          :color    color/white}]
             })
 
 (def camera (transform/perspective-camera {:fovy (Math/toRadians 60.0)
