@@ -39,7 +39,8 @@
                           :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
                                         "material_ambient" "material_diffuse" "material_specular"
                                         "specular_power"
-                                        "light_color" "light_position"}}
+                                        "light_color" "light_position"
+                                        "light_is_directional"}}
                          {:name       "phong"
                           :attributes {
                                        "position" 0
