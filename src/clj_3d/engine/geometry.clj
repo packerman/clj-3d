@@ -7,7 +7,8 @@
   (:import (com.jogamp.opengl GL4 GL GL2ES2)))
 
 (def primitive->mode {:triangles GL/GL_TRIANGLES
-                      :lines     GL/GL_LINES})
+                      :lines     GL/GL_LINES
+                      :triangle-strip GL/GL_TRIANGLE_STRIP})
 
 (defn- gl-gen-buffers [^GL gl n]
   (let [buffers (int-array n)]
