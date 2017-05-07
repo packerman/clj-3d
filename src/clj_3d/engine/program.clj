@@ -6,7 +6,7 @@
 (defn program-name-for-material [material]
   (cond
     (= material :normal) "normal"
-    (and (get-in material [:colors :specular]) (:smooth material))  "phong"
+    (and (get-in material [:colors :specular]) (:smooth material)) "phong"
     (get-in material [:colors :specular]) "gouraud"
     (get-in material [:colors :diffuse]) "diffuse"
     :else "flat"))
@@ -39,6 +39,7 @@
                           :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
                                         "material_ambient" "material_diffuse" "material_specular"
                                         "specular_power"
+                                        "number_of_lights"
                                         "light_color" "light_position"
                                         "light_is_directional"}}
                          {:name       "phong"
@@ -49,6 +50,7 @@
                           :uniforms   #{"model_view_projection_matrix" "model_view_matrix" "normal_matrix"
                                         "material_ambient" "material_diffuse" "material_specular"
                                         "specular_power"
+                                        "number_of_lights"
                                         "light_color" "light_position"
                                         "light_is_directional"}}
                          })

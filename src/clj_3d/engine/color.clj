@@ -46,3 +46,7 @@
 (defn scale-color [c k]
   (let [[r g b a] c]
     [(* k r) (* k g) (* k b) a]))
+
+(defn to-rgb [c]
+  (let [[r g b _] c]
+    [r g b]))
