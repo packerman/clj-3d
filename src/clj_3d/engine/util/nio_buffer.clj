@@ -34,11 +34,15 @@
                      :type      GL/GL_FLOAT})))
 
 (defn int-buffer [data]
-  (let [num-elements (* (count data) (count (first data)))
+  (let [flat-data? (not (sequential? (first data)))
+        ^int num-elements (if flat-data? (count data) (* (count data) (count (first data))))
         buffer (Buffers/newDirectIntBuffer num-elements)]
-    (doseq [vertex data
-            ^int x vertex]
-      (.put buffer x))
+    (if flat-data?
+      (doseq [^int x data]
+        (.put buffer x))
+      (doseq [vertex data
+              ^int x vertex]
+        (.put buffer x)))
     (.rewind buffer)
     (map->NioBuffer {:data      buffer
                      :count     num-elements

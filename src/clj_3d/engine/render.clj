@@ -4,7 +4,8 @@
             [clj-3d.engine.geometry :as geometry]
             [clj-3d.engine.scene.node :as node]
             [clj-3d.engine.util.error :as error]
-            [medley.core :refer :all])
+            [medley.core :refer :all]
+            [clj-3d.engine.color :as color])
   (:import (com.jogamp.opengl GL4 GL GL3)))
 
 (defn- gl-gen-vertex-arrays [^GL3 gl n]
@@ -12,18 +13,12 @@
     (.glGenVertexArrays gl n arrays 0)
     arrays))
 
-(defn- program-name-for-material [material]
-  (cond
-    (= material :normal) "normal"
-    (get-in material [:colors :diffuse]) "diffuse"
-    :else "flat"))
-
 (defn- create-object [^GL4 gl programs geometry node]
   (let [{:keys [materials]} node
         ^ints vaos (gl-gen-vertex-arrays gl 1)
         programs (map-vals
                    (fn [material]
-                     (get programs (program-name-for-material material)))
+                     (get programs (program/program-name-for-material material)))
                    materials)]
     (.glBindVertexArray gl (aget vaos 0))
     (doseq [program (vals programs)]
@@ -37,18 +32,30 @@
                      (:transforms node))
      :programs     programs}))
 
+(defn bool->gl [value]
+  (if value GL/GL_TRUE GL/GL_FALSE))
+
 (defn when-uniform-exists [program name action]
   (when-let [location (program/uniform-location program name)]
     (action location)))
 
 (defn apply-lights [^GL4 gl program lights]
-  (when-let [[light & _] lights]
-    (let [[x y z] (:position light)
-          [r g b a] (:color light)]
+  (letfn [(is-directional-light? [light]
+            (condp = (:type light)
+              :directional true
+              :positional false
+              false))]
+    (let [positions (float-array (mapcat :position lights))
+          colors (float-array (mapcat color/to-rgb (map :color lights)))
+          directional (int-array (map bool->gl (map is-directional-light? lights)))]
+      (when-uniform-exists program "number_of_lights" (fn [location]
+                                                        (.glUniform1i gl location (count lights))))
       (when-uniform-exists program "light_position" (fn [location]
-                                                      (.glUniform3f gl location x y z)))
+                                                      (.glUniform3fv gl location (count lights) positions 0)))
       (when-uniform-exists program "light_color" (fn [location]
-                                                   (.glUniform4f gl location r g b a))))))
+                                                   (.glUniform3fv gl location (count lights) colors 0)))
+      (when-uniform-exists program "light_is_directional" (fn [location]
+                                                            (.glUniform1iv gl location (count lights) directional 0))))))
 
 (defn apply-matrices [^GL4 gl program matrices model-matrix]
   (let [model-view-projection-matrix (transform/multiply (:projection-view-matrix matrices) model-matrix)
@@ -111,7 +118,7 @@
                                    (node/prepare-node node))))]
     {:lights     (scene :lights)
      :geometries geometries
-     :objects objects}))
+     :objects    objects}))
 
 (defn render [gl render-object camera]
   (let [matrices {:projection-view-matrix (transform/get-projection-view-matrix camera)

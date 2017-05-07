@@ -13,22 +13,6 @@
                                                                              {0 (:material n)})
               (and (not (contains? n :materials)) (contains? n :color)) (assoc n :materials
                                                                                  {0 {:colors {:ambient (:color n)}}})
-              :else (error "No materials defined")))
-          (convert-color-material [material]
-            (if-not (and material (associative? material))
-              material
-              (-> material
-                  (update-in [:colors :ambient] (fn [color]
-                                                  (when color (convert-to-rgba color))))
-                  (update-in [:colors :diffuse] (fn [color]
-                                                  (when color (convert-to-rgba color)))))))
-          (convert-colors [n]
-            (update n :materials (fn [materials]
-                                   (map-vals convert-color-material materials))))
-          (convert-to-rgba [color]
-            (if (vector? color)
-              color
-              (color/to-rgba-float color)))]
+              :else (error "No materials defined")))]
     (-> node
-         prepare-materials
-         convert-colors)))
+        prepare-materials)))

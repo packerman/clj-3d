@@ -69,5 +69,7 @@
                                        (str "shader/" name "." extension))]
                     :when shader-url]
                 (compile-shader gl type (slurp shader-url)))))]
-    (link-program gl
-                  (compile-shaders))))
+    (let [program-id (link-program gl
+                                   (compile-shaders))]
+      (log/debug "Linked program" name ": id" program-id)
+      program-id)))

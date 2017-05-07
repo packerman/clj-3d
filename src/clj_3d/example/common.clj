@@ -29,7 +29,7 @@
   (^GL4 [^GLAutoDrawable drawable] (init-gl4 drawable {})))
 
 (defn set-clear-color! [^GL gl color]
-  (let [[r g b a] (color/to-rgba-float color)]
+  (let [[r g b a] color]
     (.glClearColor gl r g b a)))
 
 (defn make-application-for-scene
@@ -43,7 +43,7 @@
        (init [_ drawable]
          (log/info "init")
          (let [gl (init-gl4 drawable {:debug? false :trace? false})]
-           (log/info "Java =" (System/getProperty "java.vendor") (System/getProperty "java.version") (str "(" (System/getProperty "java.home") ")"))
+           (log/info "Java =" (System/getProperty "java.vendor") (System/getProperty "java.version"))
            (log/info "Clojure =" (clojure-version))
            (log/info "OS =" (System/getProperty "os.name") (System/getProperty "os.version") (System/getProperty "os.arch"))
            (log/info "GL =" (.glGetString gl GL4/GL_RENDERER) (.glGetString gl GL4/GL_VERSION))
